@@ -1,4 +1,4 @@
-import { curry } from "ramda";
+import { curry, is } from "ramda";
 
 type GenF<T> = () => Generator<T>
 type Gen1<T> = (x:number) => Generator<T>
@@ -13,10 +13,14 @@ var a:number = NaN
 const within = curry((eps: number,gen: GenF<number>) => {
     const i = gen()
     var result: number[] = []
-    result.push(i.next().value)
-    result.push(i.next().value)
+    c = i.next().value
+    result.push(c)
+    b = i.next().value
+    result.push(b)
     var index = 1;
     while (result[index]-result[index-1] > eps||result[index-1]-result[index] > eps) {
+        c=b
+        b=a
         const v = i.next()
         result.push(v.value)
         index++
@@ -35,13 +39,10 @@ const within = curry((eps: number,gen: GenF<number>) => {
  */
 const map = (f: (_f:(x: number) => number, x: number, h: number) => number)=>(gen: Gen1<number>)=>(_f:(x: number) => number)=>(x:number)=>(h0:number) => {
     return (function* () {
-        const i = gen(h0)
+        const i = gen(h0)    
         while (true) {
             const h = i.next().value
-            c=b
-            b=a
-            a = f(_f,x,h)
-            yield(a)
+            yield(f(_f,x,h))
         }
     })
 
@@ -56,23 +57,29 @@ function* halve(x:number) {
 }
 
 //论文中的elimerror函数
-const elimerror = (n:number) => (gen:GenF<number>) => {
+const elimerror = (genN:GenF<number>) => (gen:GenF<number>) => {
     return (function* () {
-        const i = gen()
-        var temp = i.next()
-        console.log(a)
-        if(isNaN(c)) yield temp.value 
-        else {
-            var exp = Math.pow(2, n)
-            yield (b*exp-a)/(exp-1)
+        const _n = genN()
+        const i = gen() 
+        while(true) {
+            a = i.next().value
+            const n = _n.next().value
+            if(isNaN(n)) yield a
+            else {
+                var exp = Math.pow(2, n)
+                yield (b*exp-a)/(exp-1)
+            }
         }
     })
 } 
 
 //论文中的order函数
-const order = () => {
-    if(isNaN(c)) return 1
-    else return Math.round(Math.log2((a-c)/(b-c)-1))
+const order = () =>  {
+    return (function* () {
+        while(true) {
+            yield Math.round(Math.log2((a-c)/(b-c)-1))
+        }
+    })
 }
 
 //求微分的主体
@@ -81,7 +88,11 @@ const easydiff = (f:(x:number)=>number, x:number, h:number) => (f(x+h)- f(x))/h
 //随便写一个函数
 const foo = (x:number) => 2*x*x +3*x
 
-//version 1
-console.log(within(0.1)((map(easydiff)(halve)(foo)(2)(1))))
+//返回最后一个数
+const last = (x:[]) => x.pop()
 
-// console.log(within(0.1)((elimerror(order())(map(easydiff)(halve)(foo)(2)(1)))))
+//version 1
+console.log(within(0.001)((map(easydiff)(halve)(foo)(3.4)(4.4))))
+
+//version 2
+console.log(within(0.001)((elimerror(order())(map(easydiff)(halve)(foo)(3.4)(4.4)))))
