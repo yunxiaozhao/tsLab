@@ -82,4 +82,6 @@ const easydiff = (f:(x:number)=>number, x:number, h:number) => (f(x+h)- f(x))/h
 const foo = (x:number) => 2*x*x +3*x
 
 //version 1
-console.log(within(0.1)((elimerror(order())(map(easydiff)(halve)(foo)(2)(1)))))
+console.log(within(0.1)((map(easydiff)(halve)(foo)(2)(1))))
+
+// console.log(within(0.1)((elimerror(order())(map(easydiff)(halve)(foo)(2)(1)))))
