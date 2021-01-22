@@ -16,10 +16,9 @@
 
 	 docker exec -it [镜像id] /bin/sh
 
-然后定位到工作目录，修改tsLab.ts更改你想要微分的函数以及x和h0的值
+修改tsLab.ts更改你想要微分的函数以及x和h0的值
 
-	cd app
-	vim tsLab.ts
+	vi tsLab.ts
 
 对tsLab.ts中最后五行进行修改
 
