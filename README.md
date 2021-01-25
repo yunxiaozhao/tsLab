@@ -14,7 +14,7 @@
 
 接下来使用Docker desktop进入容器的CLI或使用以下代码进入容器的CLI
 
-	 docker exec -it [镜像id] /bin/sh
+	docker exec -it [镜像id] /bin/sh
 
 修改tsLab.ts更改你想要微分的函数以及x和h0的值
 
